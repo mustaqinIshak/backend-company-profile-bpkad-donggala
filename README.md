@@ -1,181 +1,127 @@
-# Backend Company Profile BPKAD Kabupaten Donggala
+# Backend API – Company Profile BPKAD Kabupaten Donggala
 
-REST API untuk Company Profile **Badan Pengelola Keuangan dan Aset Daerah (BPKAD) Kabupaten Donggala** yang dibangun menggunakan **Node.js**, **Express.js**, dan **Sequelize ORM**.
+REST API berbasis **Laravel 11** + **Laravel Sanctum** untuk website company profile BPKAD Kabupaten Donggala.
 
-## Fitur API
+## Requirements
 
-- **Profil** – Visi, misi, dan informasi instansi
-- **Jumbotron** – Upload dan tampil slide gambar utama
-- **Organisasi** – Manajemen bidang (Sekretariat, Aset, Perbendaharaan, Akuntansi, Anggaran) beserta jabatan & pejabat
-- **Berita** – Upload dan tampil berita kegiatan
-- **Layanan** – Upload dokumen layanan per tahun APBD (Penganggaran, Penatausahaan, Pelaporan & Pertanggungjawaban, Perencanaan Evaluasi, Perjanjian Kinerja)
-- **Kontak** – Formulir pesan kontak masyarakat
-- **Autentikasi** – Login admin menggunakan JWT
-
-## Teknologi
-
-- Node.js + Express.js
-- Sequelize ORM (SQLite untuk dev, MySQL untuk produksi)
-- Multer (file upload)
-- JWT (autentikasi admin)
-- bcryptjs (enkripsi password)
+| Tool | Versi |
+|------|-------|
+| PHP | ≥ 8.2 |
+| Composer | ≥ 2.x |
+| Database | SQLite / MySQL / PostgreSQL |
 
 ## Instalasi
 
 ```bash
-# 1. Clone & masuk ke folder
+# 1. Clone repository
 git clone <repo-url>
 cd backend-company-profile-bpkad-donggala
 
 # 2. Install dependencies
-npm install
+composer install
 
-# 3. Salin file .env
+# 3. Salin environment file
 cp .env.example .env
 
-# 4. Sesuaikan konfigurasi di .env
+# 4. Generate app key
+php artisan key:generate
 
-# 5. Jalankan server
-npm run dev   # development (nodemon)
-npm start     # production
+# 5. Buat file database SQLite (atau konfigurasi MySQL di .env)
+touch database/database.sqlite
+
+# 6. Jalankan migrasi dan seeder
+php artisan migrate --seed
+
+# 7. Buat symlink storage
+php artisan storage:link
+
+# 8. Jalankan development server
+php artisan serve
 ```
-
-Server berjalan di `http://localhost:3000`. Admin default: `username=admin`, `password=admin123`.
-
-## Struktur Folder
-
-```
-├── index.js              # Entry point
-├── src/
-│   ├── app.js            # Express app
-│   ├── config/database.js
-│   ├── models/           # Sequelize models
-│   ├── controllers/      # Business logic
-│   ├── routes/           # Route definitions
-│   └── middleware/       # Auth & upload
-└── uploads/              # Uploaded files
-    ├── jumbotron/
-    ├── berita/
-    └── layanan/
-```
-
-## Dokumentasi API
-
-### Base URL: `http://localhost:3000/api`
-
-### Autentikasi
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| POST | `/auth/login` | Login admin | Public |
-| PUT | `/auth/change-password` | Ganti password | Private |
-
-> Untuk endpoint Private, sertakan header: `Authorization: Bearer <token>`
-
-### Profil
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| GET | `/profile` | Tampil profil | Public |
-| PUT | `/profile` | Update profil (multipart/form-data) | Private |
-
-Fields: `nama_instansi`, `visi`, `misi[]`, `sejarah`, `alamat`, `telepon`, `email`, `website`  
-Files: `logo`, `struktur_organisasi_gambar`
-
-### Jumbotron
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| GET | `/jumbotron` | Semua jumbotron | Public |
-| GET | `/jumbotron/:id` | Detail | Public |
-| POST | `/jumbotron` | Upload jumbotron | Private |
-| PUT | `/jumbotron/:id` | Update | Private |
-| DELETE | `/jumbotron/:id` | Hapus | Private |
-
-Filter: `?aktif=true`
-
-### Organisasi
-
-Tipe: `sekretariat` | `aset` | `perbendaharaan` | `akuntansi` | `anggaran`
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| GET | `/organisasi` | Semua + jabatan | Public |
-| GET | `/organisasi/tipe/:tipe` | Per tipe | Public |
-| GET | `/organisasi/:id` | Detail | Public |
-| POST | `/organisasi` | Tambah | Private |
-| PUT | `/organisasi/:id` | Update | Private |
-| DELETE | `/organisasi/:id` | Hapus | Private |
-| GET | `/organisasi/:id/jabatan` | Jabatan di org | Public |
-| POST | `/organisasi/jabatan/create` | Tambah jabatan | Private |
-| PUT | `/organisasi/jabatan/:id` | Update jabatan | Private |
-| DELETE | `/organisasi/jabatan/:id` | Hapus jabatan | Private |
-
-Jabatan fields: `organisasi_id`, `nama_jabatan`, `nama_pejabat`, `nip`, `tugas_fungsi[]`
-
-### Berita
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| GET | `/berita` | Semua berita (paginasi) | Public |
-| GET | `/berita/slug/:slug` | Berdasarkan slug | Public |
-| GET | `/berita/:id` | Detail | Public |
-| POST | `/berita` | Tambah berita | Private |
-| PUT | `/berita/:id` | Update | Private |
-| DELETE | `/berita/:id` | Hapus | Private |
-
-Filter: `?page=1&limit=10&kategori=Kegiatan&aktif=true`  
-Upload: `multipart/form-data` dengan field `gambar` (opsional)
-
-### Layanan
-
-Tipe: `penganggaran` | `penatausahaan` | `pelaporan_pertanggungjawaban` | `perencanaan_evaluasi` | `perjanjian_kinerja`
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| GET | `/layanan` | Semua layanan | Public |
-| GET | `/layanan/tipe/:tipe` | Per tipe | Public |
-| GET | `/layanan/:id` | Detail | Public |
-| POST | `/layanan` | Upload dokumen | Private |
-| PUT | `/layanan/:id` | Update | Private |
-| DELETE | `/layanan/:id` | Hapus | Private |
-
-Upload: `multipart/form-data` – `file` (pdf/doc/xls/ppt), `tipe`, `judul`, `tahun_apbd`, `deskripsi`  
-Filter: `?tahun_apbd=2024`
-
-### Kontak
-
-| Method | Endpoint | Deskripsi | Akses |
-|--------|----------|-----------|-------|
-| POST | `/kontak` | Kirim pesan | Public |
-| GET | `/kontak` | Semua pesan | Private |
-| GET | `/kontak/:id` | Detail (auto tandai dibaca) | Private |
-| PATCH | `/kontak/:id/status` | Update status | Private |
-| DELETE | `/kontak/:id` | Hapus | Private |
-
-Status: `belum_dibaca` | `sudah_dibaca` | `dibalas`
 
 ## Konfigurasi .env
 
 ```env
-PORT=3000
-NODE_ENV=development
-DB_DIALECT=sqlite
-DB_STORAGE=./database.sqlite
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRES_IN=7d
-ADMIN_USERNAME=admin
+DB_CONNECTION=sqlite               # atau mysql
+
+# Jika MySQL:
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=bpkad_donggala
+DB_USERNAME=root
+DB_PASSWORD=secret
+
+# Admin default (digunakan saat seeding)
+ADMIN_EMAIL=admin@bpkad-donggala.go.id
 ADMIN_PASSWORD=admin123
-MAX_FILE_SIZE=5242880
-UPLOAD_PATH=./uploads
 ```
 
-## File Upload
+## Endpoint API
 
-- **Jumbotron & Berita**: jpg, jpeg, png, gif, webp – maks 5MB
-- **Layanan**: pdf, doc, docx, xls, xlsx, ppt, pptx – maks 20MB
-- Akses file: `/uploads/<folder>/<nama-file>`
+Base URL: `http://localhost:8000/api`
 
-## Lisensi
+### 🔓 Public
 
-ISC
+| Method | URL | Deskripsi |
+|--------|-----|-----------|
+| `POST` | `/auth/login` | Login admin |
+| `GET` | `/profile` | Profil instansi |
+| `GET` | `/jumbotron` | Daftar slide jumbotron |
+| `GET` | `/organisasi` | Daftar semua bidang organisasi |
+| `GET` | `/organisasi/bidang/{bidang}` | Bidang tertentu (sekretariat/aset/perbendaharaan/akuntansi/anggaran) |
+| `GET` | `/organisasi/{id}/jabatan` | Jabatan dalam suatu bidang |
+| `GET` | `/berita` | Daftar berita (paginasi) |
+| `GET` | `/berita/slug/{slug}` | Berita by slug |
+| `GET` | `/berita/{id}` | Detail berita |
+| `GET` | `/layanan` | Daftar layanan |
+| `GET` | `/layanan/{id}` | Detail layanan |
+| `POST` | `/kontak` | Kirim pesan kontak |
+
+### 🔒 Admin (Bearer Token)
+
+| Method | URL | Deskripsi |
+|--------|-----|-----------|
+| `GET` | `/auth/me` | Info admin login |
+| `POST` | `/auth/change-password` | Ubah password |
+| `POST` | `/auth/logout` | Logout |
+| `POST` | `/admin/profile` | Update profil instansi |
+| `POST` | `/admin/jumbotron` | Tambah slide |
+| `POST` | `/admin/jumbotron/{id}` | Update slide |
+| `DELETE` | `/admin/jumbotron/{id}` | Hapus slide |
+| `PATCH` | `/admin/jumbotron/{id}/toggle` | Toggle aktif/nonaktif |
+| `PUT` | `/admin/organisasi/bidang/{bidang}` | Simpan data bidang |
+| `POST` | `/admin/organisasi/{id}/jabatan` | Tambah jabatan |
+| `POST` | `/admin/organisasi/{id}/jabatan/{jabId}` | Update jabatan |
+| `DELETE` | `/admin/organisasi/{id}/jabatan/{jabId}` | Hapus jabatan |
+| `POST` | `/admin/berita` | Tambah berita |
+| `POST` | `/admin/berita/{id}` | Update berita |
+| `DELETE` | `/admin/berita/{id}` | Hapus berita |
+| `POST` | `/admin/layanan` | Tambah layanan |
+| `POST` | `/admin/layanan/{id}` | Update layanan |
+| `DELETE` | `/admin/layanan/{id}` | Hapus layanan |
+| `GET` | `/admin/kontak` | Daftar pesan masuk |
+| `GET` | `/admin/kontak/{id}` | Detail pesan |
+| `PATCH` | `/admin/kontak/{id}/status` | Update status pesan |
+| `DELETE` | `/admin/kontak/{id}` | Hapus pesan |
+
+## Autentikasi
+
+Login menggunakan endpoint `POST /api/auth/login`:
+
+```json
+{
+  "email": "admin@bpkad-donggala.go.id",
+  "password": "admin123"
+}
+```
+
+Response berisi `token`. Gunakan sebagai Bearer token:
+```
+Authorization: Bearer <token>
+```
+
+## Upload File
+
+- **Gambar** (logo, jumbotron, berita, foto jabatan): JPG, JPEG, PNG, WEBP – maks. 2 MB (logo profil 2 MB, struktur org 5 MB)
+- **Dokumen layanan**: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX – maks. 20 MB
+- File tersimpan di `storage/app/public/` dan diakses via `/storage/`
