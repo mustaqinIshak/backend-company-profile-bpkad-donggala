@@ -1,0 +1,10 @@
+node_modules/
+uploads/jumbotron/*
+uploads/berita/*
+uploads/layanan/*
+!uploads/jumbotron/.gitkeep
+!uploads/berita/.gitkeep
+!uploads/layanan/.gitkeep
+.env
+database.sqlite
+*.log
