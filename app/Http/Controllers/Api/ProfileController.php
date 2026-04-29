@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -15,11 +14,6 @@ class ProfileController extends Controller
         if (!$profile) {
             return $this->success(null, 'Profil belum diisi.');
         }
-
-        $profile->logo_url              = $profile->logo
-            ? Storage::disk('public')->url($profile->logo) : null;
-        $profile->struktur_url          = $profile->struktur_organisasi
-            ? Storage::disk('public')->url($profile->struktur_organisasi) : null;
 
         return $this->success($profile);
     }
@@ -61,11 +55,6 @@ class ProfileController extends Controller
         }
 
         $profile->fill($data)->save();
-
-        $profile->logo_url     = $profile->logo
-            ? Storage::disk('public')->url($profile->logo) : null;
-        $profile->struktur_url = $profile->struktur_organisasi
-            ? Storage::disk('public')->url($profile->struktur_organisasi) : null;
 
         return $this->success($profile, 'Profil berhasil diperbarui.');
     }
