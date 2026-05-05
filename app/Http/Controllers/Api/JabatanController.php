@@ -42,9 +42,6 @@ class JabatanController extends Controller
     {
         $this->ensureBelongsTo($organisasi, $jabatan);
 
-        $jabatan->foto_url = $jabatan->foto
-            ? Storage::disk('public')->url($jabatan->foto) : null;
-
         return $this->success($jabatan);
     }
 
