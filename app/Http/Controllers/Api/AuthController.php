@@ -36,16 +36,19 @@ class AuthController extends Controller
                 'id'    => $admin->id,
                 'name'  => $admin->name,
                 'email' => $admin->email,
+                'roles' => $admin->roles()->get(['roles.id', 'roles.name', 'roles.display_name']),
             ],
         ], 'Login berhasil.');
     }
 
     public function me(Request $request)
     {
+        $user = $request->user()->load('roles:id,name,display_name');
         return $this->success([
-            'id'    => $request->user()->id,
-            'name'  => $request->user()->name,
-            'email' => $request->user()->email,
+            'id'    => $user->id,
+            'name'  => $user->name,
+            'email' => $user->email,
+            'roles' => $user->roles,
         ]);
     }
 
