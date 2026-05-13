@@ -11,8 +11,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Seed roles first
-        $this->call(RoleSeeder::class);
+        // Seed roles & permissions first
+        $this->call([
+            RoleSeeder::class,
+            PermissionSeeder::class,
+        ]);
 
         // Create default admin if not exists
         $admin = Admin::firstOrCreate(

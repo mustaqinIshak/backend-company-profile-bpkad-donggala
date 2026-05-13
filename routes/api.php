@@ -66,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // ── Admin management (super_admin only) ────────────────────────────
     Route::middleware('role:super_admin')->group(function () {
         // Role management
+        Route::get('/admin/permissions', [AdminController::class, 'permissions']);
         Route::get('/admin/roles', [AdminController::class, 'roles']);
         Route::post('/admin/roles', [AdminController::class, 'storeRole']);
         Route::get('/admin/roles/{role}', [AdminController::class, 'showRole']);

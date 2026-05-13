@@ -28,15 +28,24 @@ class AuthController extends Controller
         // Revoke all previous tokens
         $admin->tokens()->delete();
 
+        // Eager-load roles untuk permission calculation
+        $admin->load('roles');
+
         $token = $admin->createToken('api-token')->plainTextToken;
 
         return $this->success([
             'token' => $token,
             'admin' => [
-                'id'    => $admin->id,
-                'name'  => $admin->name,
-                'email' => $admin->email,
-                'roles' => $admin->roles()->get(['roles.id', 'roles.name', 'roles.display_name']),
+                'id'          => $admin->id,
+                'name'        => $admin->name,
+                'email'       => $admin->email,
+                'roles'       => $admin->roles->map(fn($r) => [
+                    'id'           => $r->id,
+                    'name'         => $r->name,
+                    'display_name' => $r->display_name,
+                ]),
+                // PBAC: daftar permission yang dimiliki user ini
+                'permissions' => $admin->getPermissions()->all(),
             ],
         ], 'Login berhasil.');
     }
@@ -45,10 +54,12 @@ class AuthController extends Controller
     {
         $user = $request->user()->load('roles:id,name,display_name');
         return $this->success([
-            'id'    => $user->id,
-            'name'  => $user->name,
-            'email' => $user->email,
-            'roles' => $user->roles,
+            'id'          => $user->id,
+            'name'        => $user->name,
+            'email'       => $user->email,
+            'roles'       => $user->roles,
+            // PBAC: permission yang dimiliki user ini (digunakan frontend untuk gate UI)
+            'permissions' => $user->getPermissions()->all(),
         ]);
     }
 

@@ -140,18 +140,28 @@ class AdminController extends Controller
     }
 
     /**
+     * GET /admin/permissions
+     * Daftar semua permissions yang tersedia
+     */
+    public function permissions()
+    {
+        $permissions = \App\Models\Permission::all(['id', 'name', 'description']);
+        return $this->success($permissions);
+    }
+
+    /**
      * GET /admin/roles
      * Daftar semua role yang tersedia.
      */
     public function roles()
     {
-        $roles = Role::withCount('admins')->get(['id', 'name', 'display_name', 'description']);
+        $roles = Role::withCount('admins')->with('permissions:id,name,description')->get(['id', 'name', 'display_name', 'description']);
         return $this->success($roles);
     }
 
     /**
      * POST /admin/roles
-     * Buat role baru.
+     * Buat role baru beserta permissions-nya.
      */
     public function storeRole(Request $request)
     {
@@ -159,11 +169,21 @@ class AdminController extends Controller
             'name'         => 'required|string|max:50|unique:roles,name|regex:/^[a-z_]+$/',
             'display_name' => 'required|string|max:100',
             'description'  => 'nullable|string|max:255',
+            'permissions'  => 'nullable|array',
+            'permissions.*'=> 'exists:permissions,id',
         ]);
 
-        $role = Role::create($data);
+        $role = Role::create([
+            'name' => $data['name'],
+            'display_name' => $data['display_name'],
+            'description' => $data['description'] ?? null,
+        ]);
 
-        return $this->success($role, 'Role berhasil dibuat.', 201);
+        if (isset($data['permissions'])) {
+            $role->permissions()->sync($data['permissions']);
+        }
+
+        return $this->success($role->load('permissions:id,name,description'), 'Role berhasil dibuat.', 201);
     }
 
     /**
@@ -172,25 +192,31 @@ class AdminController extends Controller
      */
     public function showRole(Role $role)
     {
-        $role->load('admins:id,name,email');
+        $role->load('admins:id,name,email', 'permissions:id,name,description');
         $role->loadCount('admins');
         return $this->success($role);
     }
 
     /**
      * PUT /admin/roles/{role}
-     * Update role.
+     * Update role beserta permissions-nya.
      */
     public function updateRole(Request $request, Role $role)
     {
         $data = $request->validate([
             'display_name' => 'sometimes|required|string|max:100',
             'description'  => 'nullable|string|max:255',
+            'permissions'  => 'nullable|array',
+            'permissions.*'=> 'exists:permissions,id',
         ]);
 
-        $role->update($data);
+        $role->update($request->only(['display_name', 'description']));
 
-        return $this->success($role, 'Role diperbarui.');
+        if (isset($data['permissions'])) {
+            $role->permissions()->sync($data['permissions']);
+        }
+
+        return $this->success($role->load('permissions:id,name,description'), 'Role diperbarui.');
     }
 
     /**
