@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 // Auth
 Route::post('/auth/login', [AuthController::class, 'login']);
+// Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1'); // 5 percobaan per menit
 
 // Profile (read-only public)
 Route::get('/profile', [ProfileController::class, 'show']);
