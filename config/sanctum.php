@@ -10,7 +10,7 @@ return [
 
     'guard' => ['web'],
 
-    'expiration' => null,
+    'expiration' => 60 * 24 * 7, // 7 days — matches the auth_token httpOnly cookie lifetime
 
     'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
 

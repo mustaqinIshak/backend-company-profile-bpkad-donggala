@@ -14,7 +14,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email'    => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required|string|min:8',
         ]);
 
         $admin = Admin::where('email', $request->email)->first();
@@ -33,8 +33,20 @@ class AuthController extends Controller
 
         $token = $admin->createToken('api-token')->plainTextToken;
 
+        // Set token as httpOnly, Secure cookie — token never exposed to JavaScript
+        $cookie = cookie(
+            name: 'auth_token',
+            value: $token,
+            minutes: 60 * 24 * 7,                           // 7 hari
+            path: '/',
+            domain: null,
+            secure: app()->environment('production'),        // HTTPS only in production
+            httpOnly: true,
+            raw: false,
+            sameSite: 'strict',
+        );
+
         return $this->success([
-            'token' => $token,
             'admin' => [
                 'id'          => $admin->id,
                 'name'        => $admin->name,
@@ -44,10 +56,9 @@ class AuthController extends Controller
                     'name'         => $r->name,
                     'display_name' => $r->display_name,
                 ]),
-                // PBAC: daftar permission yang dimiliki user ini
                 'permissions' => $admin->getPermissions()->all(),
             ],
-        ], 'Login berhasil.');
+        ], 'Login berhasil.')->cookie($cookie);
     }
 
     public function me(Request $request)
@@ -88,6 +99,19 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return $this->success(null, 'Logout berhasil.');
+        // Clear the httpOnly auth cookie
+        $expiredCookie = cookie(
+            name: 'auth_token',
+            value: '',
+            minutes: -1,
+            path: '/',
+            domain: null,
+            secure: app()->environment('production'),
+            httpOnly: true,
+            raw: false,
+            sameSite: 'strict',
+        );
+
+        return $this->success(null, 'Logout berhasil.')->cookie($expiredCookie);
     }
 }

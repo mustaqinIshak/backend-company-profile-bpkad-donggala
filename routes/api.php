@@ -23,9 +23,8 @@ use Illuminate\Support\Facades\Route;
 
 // ── Public routes ──────────────────────────────────────────────────────
 
-// Auth
-Route::post('/auth/login', [AuthController::class, 'login']);
-// Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1'); // 5 percobaan per menit
+// Auth – rate limited: 5 attempts per minute per IP (server-side brute-force protection)
+Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
 // Profile (read-only public)
 Route::get('/profile', [ProfileController::class, 'show']);

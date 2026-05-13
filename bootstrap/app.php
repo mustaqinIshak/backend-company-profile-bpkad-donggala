@@ -12,9 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Trust local reverse proxy (Nginx) so $request->isSecure() works correctly
+        // behind SSL termination
+        $middleware->trustProxies(at: '127.0.0.1');
+
         $middleware->api(prepend: [
+            // 1. Decrypt incoming cookies before our middleware reads them
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            // 2. Inject auth_token cookie as Authorization header (httpOnly cookie auth)
+            \App\Http\Middleware\SetTokenFromCookie::class,
+            // 3. Sanctum stateful SPA support
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
+
+        // Security headers on every API response (CSP, HSTS, X-Frame-Options, etc.)
+        $middleware->appendToGroup('api', \App\Http\Middleware\SecurityHeaders::class);
 
         $middleware->alias([
             'verified'   => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
