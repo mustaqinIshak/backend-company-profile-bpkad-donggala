@@ -436,3 +436,52 @@ Authorization: Bearer <token>
 - **Gambar** (logo, jumbotron, berita, foto jabatan): JPG, JPEG, PNG, WEBP – maks. 2 MB (logo profil 2 MB, struktur org 5 MB)
 - **Dokumen layanan**: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX – maks. 20 MB
 - File tersimpan di `storage/app/public/` dan diakses via `/storage/`
+
+## Perubahan PHP Biasa (Controller, Model, Route, dll)
+
+Karena ada volume mount **.:/var/www/html**, perubahan langsung aktif tanpa restart.
+
+Tapi jika route/config di-cache, harus clear dulu:
+
+```bash
+docker compose exec app php artisan route:clear
+docker compose exec app php artisan config:clear
+```
+
+## Perubahan **.env**
+```bash
+docker compose restart app
+```
+
+## Perubahan Migration (tambah tabel/kolom baru)
+```bash
+docker compose exec app php artisan migrate
+```
+
+## Tambah Package baru (**composer require ...**)
+
+Image harus di-rebuild karena composer install ada di Dockerfile:
+
+```bash
+docker compose up -d --build app
+```
+
+## Perbuahan Dockerfile atau docker-composer.yml
+```bash
+docker compose up -d --buil
+```
+
+## Peubahan **default.conf**
+```bash
+docker compose restart nginx
+```
+
+## Ringkasan Cepat
+| Jenis Perubahan | Perintah |
+|-----------------|----------|
+| File PHP (controller, model, dll.) | Langsung aktif ✅
+| .env | **docker compose restart app** |
+| Migration baru | **docker compose exec app php** **artisan migrate** |
+| composer.json / package baru | **docker compose up -d --build app** |
+| Dockerfile | **docker compose up -d --build** |
+| nginx/default.conf | **docker compose restart nginx** |

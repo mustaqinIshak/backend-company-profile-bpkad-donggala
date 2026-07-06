@@ -57,7 +57,7 @@
   ),
   'cache' => 
   array (
-    'default' => 'database',
+    'default' => 'file',
     'stores' => 
     array (
       'array' => 
@@ -76,8 +76,8 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\framework/cache/data',
-        'lock_path' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\framework/cache/data',
+        'path' => '/var/www/html/storage/framework/cache/data',
+        'lock_path' => '/var/www/html/storage/framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -127,34 +127,6 @@
   array (
     'default' => 'process',
   ),
-  'cors' => 
-  array (
-    'paths' => 
-    array (
-      0 => 'api/*',
-      1 => 'sanctum/csrf-cookie',
-    ),
-    'allowed_methods' => 
-    array (
-      0 => '*',
-    ),
-    'allowed_origins' => 
-    array (
-      0 => '*',
-    ),
-    'allowed_origins_patterns' => 
-    array (
-    ),
-    'allowed_headers' => 
-    array (
-      0 => '*',
-    ),
-    'exposed_headers' => 
-    array (
-    ),
-    'max_age' => 0,
-    'supports_credentials' => false,
-  ),
   'hashing' => 
   array (
     'driver' => 'bcrypt',
@@ -194,14 +166,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\logs/laravel.log',
+        'path' => '/var/www/html/storage/logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\logs/laravel.log',
+        'path' => '/var/www/html/storage/logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -266,7 +238,7 @@
       ),
       'emergency' => 
       array (
-        'path' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\logs/laravel.log',
+        'path' => '/var/www/html/storage/logs/laravel.log',
       ),
     ),
   ),
@@ -342,7 +314,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'D:\\github\\backend-company-profile-bpkad-donggala\\resources\\views/vendor/mail',
+        0 => '/var/www/html/resources/views/vendor/mail',
       ),
     ),
   ),
@@ -437,7 +409,7 @@
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\framework/sessions',
+    'files' => '/var/www/html/storage/framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -458,9 +430,9 @@
   array (
     'paths' => 
     array (
-      0 => 'D:\\github\\backend-company-profile-bpkad-donggala\\resources\\views',
+      0 => '/var/www/html/resources/views',
     ),
-    'compiled' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\framework\\views',
+    'compiled' => '/var/www/html/storage/framework/views',
   ),
   'app' => 
   array (
@@ -612,6 +584,38 @@
     ),
     'password_timeout' => 10800,
   ),
+  'cors' => 
+  array (
+    'paths' => 
+    array (
+      0 => 'api/*',
+      1 => 'sanctum/csrf-cookie',
+    ),
+    'allowed_methods' => 
+    array (
+      0 => '*',
+    ),
+    'allowed_origins' => 
+    array (
+      0 => 'http://localhost:3000',
+      1 => 'http://localhost:5173',
+    ),
+    'allowed_origins_patterns' => 
+    array (
+    ),
+    'allowed_headers' => 
+    array (
+      0 => 'Content-Type',
+      1 => 'X-Requested-With',
+      2 => 'Accept',
+      3 => 'Authorization',
+    ),
+    'exposed_headers' => 
+    array (
+    ),
+    'max_age' => 0,
+    'supports_credentials' => true,
+  ),
   'database' => 
   array (
     'default' => 'mysql',
@@ -629,11 +633,11 @@
       array (
         'driver' => 'mysql',
         'url' => NULL,
-        'host' => '127.0.0.1',
+        'host' => 'db',
         'port' => '3306',
         'database' => 'bpkad_donggala',
-        'username' => 'root',
-        'password' => '',
+        'username' => 'bpkad_user',
+        'password' => 'takin230793',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -649,11 +653,11 @@
       array (
         'driver' => 'mariadb',
         'url' => NULL,
-        'host' => '127.0.0.1',
+        'host' => 'db',
         'port' => '3306',
         'database' => 'bpkad_donggala',
-        'username' => 'root',
-        'password' => '',
+        'username' => 'bpkad_user',
+        'password' => 'takin230793',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -669,11 +673,11 @@
       array (
         'driver' => 'pgsql',
         'url' => NULL,
-        'host' => '127.0.0.1',
+        'host' => 'db',
         'port' => '3306',
         'database' => 'bpkad_donggala',
-        'username' => 'root',
-        'password' => '',
+        'username' => 'bpkad_user',
+        'password' => 'takin230793',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -684,11 +688,11 @@
       array (
         'driver' => 'sqlsrv',
         'url' => NULL,
-        'host' => '127.0.0.1',
+        'host' => 'db',
         'port' => '3306',
         'database' => 'bpkad_donggala',
-        'username' => 'root',
-        'password' => '',
+        'username' => 'bpkad_user',
+        'password' => 'takin230793',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -735,14 +739,14 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\app/private',
+        'root' => '/var/www/html/storage/app/private',
         'serve' => true,
         'throw' => false,
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\app/public',
+        'root' => '/var/www/html/storage/app/public',
         'url' => 'http://localhost:8000/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -762,7 +766,7 @@
     ),
     'links' => 
     array (
-      'D:\\github\\backend-company-profile-bpkad-donggala\\public\\storage' => 'D:\\github\\backend-company-profile-bpkad-donggala\\storage\\app/public',
+      '/var/www/html/public/storage' => '/var/www/html/storage/app/public',
     ),
   ),
   'sanctum' => 
@@ -776,7 +780,7 @@
     array (
       0 => 'web',
     ),
-    'expiration' => NULL,
+    'expiration' => 10080,
     'token_prefix' => '',
     'middleware' => 
     array (

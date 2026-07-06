@@ -1,0 +1,89 @@
+services:
+  # ─── PHP-FPM (Laravel App) ────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bpkad_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - storage_public:/var/www/html/storage/app/public
+    networks:
+      - bpkad_net
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  # ─── Nginx Web Server ────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: bpkad_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - storage_public:/var/www/html/storage/app/public
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - bpkad_net
+    depends_on:
+      - app
+
+  # ─── Database (MariaDB — lebih ringan & stabil di ARM/Armbian) ───────────
+  db:
+    image: mariadb:11.4
+    container_name: bpkad_db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - bpkad_net
+    # healthcheck: #ini untuk setingan di server
+    #   test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 30s
+    healthcheck: #ini untuk setingan di docker local
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "--silent"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─── phpMyAdmin ─────────────────────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: bpkad_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      - bpkad_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
+    driver: local
+  storage_public:
+    driver: local
+
+networks:
+  bpkad_net:
+    driver: bridge
