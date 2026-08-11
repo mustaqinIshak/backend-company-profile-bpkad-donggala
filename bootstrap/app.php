@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Trust local reverse proxy (Nginx) so $request->isSecure() works correctly
         // behind SSL termination
-        $middleware->trustProxies(at: '127.0.0.1');
+	$middleware->trustProxies(at: '*');
 
         $middleware->api(prepend: [
             // 1. Decrypt incoming cookies before our middleware reads them

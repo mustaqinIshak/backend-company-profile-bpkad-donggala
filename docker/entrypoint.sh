@@ -4,7 +4,8 @@ set -e
 echo ">>> Menjalankan setup awal Laravel..."
 
 # Generate APP_KEY jika belum ada
-if [ -z "$APP_KEY" ]; then
+# Deteksi langsung dari konten file .env apakah APP_KEY sudah terisi dengan format base64
+if ! grep -q "^APP_KEY=base64:" /var/www/html/.env; then
     echo ">>> Membuat APP_KEY..."
     php artisan key:generate --force
 fi
