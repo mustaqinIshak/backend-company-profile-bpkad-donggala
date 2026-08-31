@@ -11,11 +11,11 @@ return new class extends Migration
         Schema::create('layanans', function (Blueprint $table) {
             $table->id();
             $table->enum('tipe', [
-                'penganggaran',
-                'penatausahaan',
-                'pelaporan_pertanggungjawaban',
-                'perencanaan_evaluasi',
-                'perjanjian_kinerja',
+                        'sekretariat',
+                        'aset',
+                        'perbendaharaan',
+                        'akuntansi',
+                        'anggaran',
             ]);
             $table->string('judul');
             $table->text('deskripsi')->nullable();
