@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Layanan extends Model
 {
     const TIPE_LIST = [
-        'penganggaran',
-        'penatausahaan',
-        'pelaporan_pertanggungjawaban',
-        'perencanaan_evaluasi',
-        'perjanjian_kinerja',
+       'sekretariat',
+        'aset',
+        'perbendaharaan',
+        'akuntansi',
+        'anggaran',
     ];
 
     protected $fillable = [

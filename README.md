@@ -201,7 +201,7 @@ Base URL: `http://localhost:8000/api`
 | Method | URL | Deskripsi |
 |--------|-----|-----------|
 | `GET` | `/admin/roles` | Daftar semua role yang tersedia |
-| `GET` | `/admin/admins` | Daftar semua admin (filter: search, role) |
+| `GET` | `docker compose restart app` | Daftar semua admin (filter: search, role) |
 | `POST` | `/admin/admins` | Buat admin baru (body: name, email, password, roles[]) |
 | `GET` | `/admin/admins/{id}` | Detail admin beserta roles |
 | `POST` | `/admin/admins/{id}` | Update nama/email/password admin |
