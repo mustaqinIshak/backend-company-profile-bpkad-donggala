@@ -40,7 +40,7 @@ class DebugFileUpload extends Command
             if ($this->option('check-permissions')) {
                 $perms = substr(sprintf('%o', fileperms($storageDir)), -4);
                 $this->line("- Permissions: $perms");
-                $this->line("- Is Writable: " . (is_writable($storageDir) ? '✅' Yes' : '❌ No'));
+                $this->line("- Is Writable: " . (is_writable($storageDir) ? '✅ Yes' : '❌ No'));
             }
 
             $files = File::files($storageDir);
