@@ -27,7 +27,7 @@ else
     echo ">>> Data sudah ada, seeder dilewati."
 fi
 
-# Buat storage directories
+# Buat storage directories (jika belum ada)
 echo ">>> Membuat storage directories..."
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/storage/app/public/layanan
@@ -39,11 +39,14 @@ mkdir -p /var/www/html/storage/app/public/tamu
 mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/storage/framework/cache
 
-# Set proper permissions
+# Set proper permissions (chmod only, skip chown if not root)
 echo ">>> Setting storage permissions..."
-chown -R www-data:www-data /var/www/html/storage
 chmod -R 775 /var/www/html/storage
 chmod -R 755 /var/www/html/storage/app/public
+chmod -R 775 /var/www/html/bootstrap/cache
+
+# Note: chown will be done by Dockerfile at build time with proper user context
+# Runtime chown is not possible as container runs as www-data (non-root)
 
 # Buat storage link jika belum ada
 if [ ! -L "/var/www/html/public/storage" ]; then
