@@ -17,6 +17,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    # Ensure proper file permissions for Docker storage volumes
+    user: "1000:1000"
 
   # ─── Nginx Web Server ────────────────────────────────────────────────────
   nginx:

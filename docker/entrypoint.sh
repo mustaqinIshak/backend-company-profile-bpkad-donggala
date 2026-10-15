@@ -27,6 +27,24 @@ else
     echo ">>> Data sudah ada, seeder dilewati."
 fi
 
+# Buat storage directories
+echo ">>> Membuat storage directories..."
+mkdir -p /var/www/html/storage/logs
+mkdir -p /var/www/html/storage/app/public/layanan
+mkdir -p /var/www/html/storage/app/public/berita
+mkdir -p /var/www/html/storage/app/public/jumbotron
+mkdir -p /var/www/html/storage/app/public/profile
+mkdir -p /var/www/html/storage/app/public/surat
+mkdir -p /var/www/html/storage/app/public/tamu
+mkdir -p /var/www/html/storage/framework/views
+mkdir -p /var/www/html/storage/framework/cache
+
+# Set proper permissions
+echo ">>> Setting storage permissions..."
+chown -R www-data:www-data /var/www/html/storage
+chmod -R 775 /var/www/html/storage
+chmod -R 755 /var/www/html/storage/app/public
+
 # Buat storage link jika belum ada
 if [ ! -L "/var/www/html/public/storage" ]; then
     echo ">>> Membuat storage link..."
