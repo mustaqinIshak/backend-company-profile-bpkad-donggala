@@ -51,19 +51,26 @@ class LayananController extends Controller
 
             if ($request->hasFile('file_dokumen')) {
                 $file = $request->file('file_dokumen');
+                $originalName = $file->getClientOriginalName();
                 
                 Log::info('File upload attempt', [
-                    'original_name' => $file->getClientOriginalName(),
+                    'original_name' => $originalName,
                     'size' => $file->getSize(),
                     'mime_type' => $file->getMimeType(),
                     'path' => $file->getRealPath(),
                 ]);
 
-                $path = $file->store('layanan', 'public');
+                // Sanitize filename: remove special chars, replace spaces with underscore
+                $safeFileName = $this->sanitizeFileName($originalName);
+                Log::info('File name sanitized', ['original' => $originalName, 'safe' => $safeFileName]);
+
+                // Store with safe filename
+                $path = $file->storeAs('layanan', $safeFileName, 'public');
                 
                 if (!$path) {
                     Log::error('File storage failed', [
-                        'filename' => $file->getClientOriginalName(),
+                        'filename' => $originalName,
+                        'safe_filename' => $safeFileName,
                         'size' => $file->getSize(),
                     ]);
                     return $this->error('The file dokumen failed to upload.', 422, [
@@ -72,7 +79,7 @@ class LayananController extends Controller
                 }
                 
                 $data['file_dokumen'] = $path;
-                Log::info('File stored successfully', ['path' => $path]);
+                Log::info('File stored successfully', ['path' => $path, 'original_name' => $originalName]);
             }
 
             $layanan = Layanan::create($data);
@@ -86,6 +93,35 @@ class LayananController extends Controller
             
             return $this->error('An error occurred while processing your request.', 500);
         }
+    }
+
+    private function sanitizeFileName($fileName)
+    {
+        // Get file extension
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $nameWithoutExt = pathinfo($fileName, PATHINFO_FILENAME);
+
+        // Remove special characters, keep only alphanumeric, spaces, and hyphens
+        $sanitized = preg_replace('/[^a-zA-Z0-9\s\-_]/u', '', $nameWithoutExt);
+
+        // Replace multiple spaces/underscores with single underscore
+        $sanitized = preg_replace('/[\s_]+/', '_', $sanitized);
+
+        // Remove leading/trailing underscores
+        $sanitized = trim($sanitized, '_');
+
+        // Limit length (filesystem limit is usually 255, but keep margin for timestamp)
+        $maxLength = 200;
+        if (strlen($sanitized) > $maxLength) {
+            $sanitized = substr($sanitized, 0, $maxLength);
+        }
+
+        // If name is empty after sanitization, use timestamp
+        if (empty($sanitized)) {
+            $sanitized = 'file_' . time();
+        }
+
+        return $sanitized . '.' . $extension;
     }
 
     public function show(Layanan $layanan)
@@ -115,18 +151,24 @@ class LayananController extends Controller
                 }
                 
                 $file = $request->file('file_dokumen');
+                $originalName = $file->getClientOriginalName();
                 
                 Log::info('File update attempt', [
-                    'original_name' => $file->getClientOriginalName(),
+                    'original_name' => $originalName,
                     'size' => $file->getSize(),
                     'mime_type' => $file->getMimeType(),
                 ]);
 
-                $path = $file->store('layanan', 'public');
+                // Sanitize filename
+                $safeFileName = $this->sanitizeFileName($originalName);
+                Log::info('File name sanitized', ['original' => $originalName, 'safe' => $safeFileName]);
+
+                $path = $file->storeAs('layanan', $safeFileName, 'public');
                 
                 if (!$path) {
                     Log::error('File storage failed during update', [
-                        'filename' => $file->getClientOriginalName(),
+                        'filename' => $originalName,
+                        'safe_filename' => $safeFileName,
                         'size' => $file->getSize(),
                     ]);
                     return $this->error('The file dokumen failed to upload.', 422, [
@@ -135,7 +177,7 @@ class LayananController extends Controller
                 }
                 
                 $data['file_dokumen'] = $path;
-                Log::info('File updated successfully', ['path' => $path]);
+                Log::info('File updated successfully', ['path' => $path, 'original_name' => $originalName]);
             }
 
             $layanan->update($data);
