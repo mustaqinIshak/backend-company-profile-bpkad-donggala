@@ -39,6 +39,16 @@ class LayananController extends Controller
     public function store(Request $request)
     {
         try {
+            Log::info('Store request received', [
+                'request_data' => $request->except('file_dokumen'),
+                'has_file' => $request->hasFile('file_dokumen'),
+                'file_info' => $request->file('file_dokumen') ? [
+                    'name' => $request->file('file_dokumen')->getClientOriginalName(),
+                    'mime' => $request->file('file_dokumen')->getMimeType(),
+                    'size' => $request->file('file_dokumen')->getSize(),
+                ] : null,
+            ]);
+
             $validated = $request->validate([
                 'tipe'         => 'required|in:'.implode(',', Layanan::TIPE_LIST),
                 'judul'        => 'required|string|max:255',
@@ -46,6 +56,8 @@ class LayananController extends Controller
                 'tahun_apbd'   => 'required|integer|min:2000|max:2100',
                 'file_dokumen' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:20480',
             ]);
+
+            Log::info('Validation passed', ['validated_keys' => array_keys($validated)]);
 
             $data = collect($validated)->only(['tipe', 'judul', 'deskripsi', 'tahun_apbd'])->toArray();
 
@@ -85,9 +97,16 @@ class LayananController extends Controller
             $layanan = Layanan::create($data);
 
             return $this->success($layanan, 'Layanan berhasil ditambahkan.', 201);
+        } catch (\Illuminate\Validation\ValidationException $ve) {
+            Log::error('Validation failed in store', [
+                'errors' => $ve->errors(),
+                'request_data' => $request->except('file_dokumen'),
+            ]);
+            throw $ve;
         } catch (\Throwable $e) {
             Log::error('Layanan store error', [
                 'message' => $e->getMessage(),
+                'exception_class' => get_class($e),
                 'trace' => $e->getTraceAsString(),
             ]);
             
@@ -135,6 +154,12 @@ class LayananController extends Controller
     public function update(Request $request, Layanan $layanan)
     {
         try {
+            Log::info('Update request received', [
+                'layanan_id' => $layanan->id,
+                'request_data' => $request->except('file_dokumen'),
+                'has_file' => $request->hasFile('file_dokumen'),
+            ]);
+
             $validated = $request->validate([
                 'tipe'         => 'sometimes|in:'.implode(',', Layanan::TIPE_LIST),
                 'judul'        => 'sometimes|required|string|max:255',
@@ -142,6 +167,8 @@ class LayananController extends Controller
                 'tahun_apbd'   => 'sometimes|integer|min:2000|max:2100',
                 'file_dokumen' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx|max:20480',
             ]);
+
+            Log::info('Validation passed for update', ['validated_keys' => array_keys($validated)]);
 
             $data = collect($validated)->only(['tipe', 'judul', 'deskripsi', 'tahun_apbd'])->toArray();
 
@@ -183,9 +210,16 @@ class LayananController extends Controller
             $layanan->update($data);
 
             return $this->success($layanan, 'Layanan berhasil diperbarui.');
+        } catch (\Illuminate\Validation\ValidationException $ve) {
+            Log::error('Validation failed in update', [
+                'errors' => $ve->errors(),
+                'layanan_id' => $layanan->id,
+            ]);
+            throw $ve;
         } catch (\Throwable $e) {
             Log::error('Layanan update error', [
                 'message' => $e->getMessage(),
+                'exception_class' => get_class($e),
                 'trace' => $e->getTraceAsString(),
             ]);
             
